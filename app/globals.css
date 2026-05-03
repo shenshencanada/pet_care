@@ -1,0 +1,637 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply m-0 bg-paper text-ink font-sans;
+    letter-spacing: 0;
+  }
+
+  img {
+    @apply block w-full;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  svg {
+    @apply h-5 w-5;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  .site-header {
+    @apply fixed inset-x-0 top-0 z-20 border-b border-white/25 bg-[rgba(19,31,29,0.58)] text-white backdrop-blur-[18px];
+  }
+
+  .nav {
+    @apply mx-auto flex h-[72px] items-center justify-between gap-6;
+    width: min(1160px, calc(100% - 36px));
+  }
+
+  .brand {
+    @apply flex min-w-max items-center gap-3 text-[19px] font-extrabold;
+  }
+
+  .brand-mark {
+    @apply grid h-[38px] w-[38px] place-items-center rounded-full bg-white text-teal shadow-[0_10px_26px_rgba(0,0,0,0.18)];
+  }
+
+  .nav-links {
+    @apply flex items-center gap-6 text-sm text-white/85;
+  }
+
+  .nav-links a {
+    @apply transition-colors hover:text-white;
+  }
+
+  .icon-btn,
+  .primary-btn,
+  .secondary-btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-[9px] rounded-card border-0 whitespace-nowrap transition duration-200;
+  }
+
+  .primary-btn {
+    @apply bg-coral px-[18px] text-white font-bold shadow-coral hover:-translate-y-px hover:shadow-[0_18px_34px_rgba(217,102,79,0.36)];
+  }
+
+  .secondary-btn {
+    @apply border border-white/70 bg-white/10 px-[18px] text-white font-bold;
+  }
+
+  .menu-toggle {
+    @apply hidden w-11 bg-white/15 text-white;
+  }
+
+  .hero {
+    @apply flex min-h-[92vh] items-end py-[58px] pt-28 text-white;
+    background:
+      linear-gradient(90deg, rgba(12, 28, 25, 0.78), rgba(12, 28, 25, 0.32) 58%, rgba(12, 28, 25, 0.46)),
+      url("https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=1800&q=82") center / cover;
+  }
+
+  .hero-inner {
+    @apply mx-auto grid grid-cols-[minmax(0,1.05fr)_410px] items-end gap-[42px];
+    width: min(1160px, calc(100% - 36px));
+  }
+
+  .hero-copy {
+    @apply max-w-[720px] pb-5;
+  }
+
+  .eyebrow {
+    @apply mb-4 mt-0 text-sm font-extrabold uppercase text-[#f6d18b];
+    letter-spacing: 0.12em;
+  }
+
+  h1 {
+    @apply m-0 max-w-[680px] font-extrabold;
+    font-size: clamp(44px, 7vw, 88px);
+    line-height: 0.96;
+  }
+
+  .hero-copy p:not(.eyebrow) {
+    @apply mt-6 max-w-[620px] text-lg leading-[1.8] text-white/85;
+  }
+
+  .hero-actions {
+    @apply mt-[30px] flex flex-wrap gap-3.5;
+  }
+
+  .quick-book {
+    @apply overflow-hidden rounded-card border border-white/40 bg-white/85 text-ink shadow-soft backdrop-blur-xl;
+  }
+
+  .quick-book header {
+    @apply flex items-center justify-between gap-3.5 border-b border-line px-[22px] pb-4 pt-5;
+  }
+
+  .quick-book h2,
+  .section-head h2,
+  .panel h3,
+  .service h3,
+  .price-card h3,
+  .review h3 {
+    @apply m-0;
+  }
+
+  .quick-book header span {
+    @apply text-[13px] text-muted;
+  }
+
+  .quick-book form,
+  .booking-panel form {
+    @apply grid gap-3.5;
+  }
+
+  .quick-book form {
+    @apply px-[22px] pb-[22px] pt-5;
+  }
+
+  .field {
+    @apply grid gap-[7px];
+  }
+
+  label {
+    @apply text-[13px] font-bold text-muted;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply min-h-[45px] w-full rounded-card border border-[#ccd8d2] bg-white px-3 py-2.5 text-ink outline-none focus:border-teal focus:shadow-[0_0_0_3px_rgba(17,107,107,0.13)];
+  }
+
+  textarea {
+    @apply min-h-[92px] resize-y;
+  }
+
+  .form-grid {
+    @apply grid grid-cols-2 gap-3;
+  }
+
+  main section {
+    @apply py-[84px];
+  }
+
+  .section-inner {
+    @apply mx-auto;
+    width: min(1160px, calc(100% - 36px));
+  }
+
+  .section-head {
+    @apply mb-[30px] flex items-end justify-between gap-7;
+  }
+
+  .section-head h2 {
+    @apply font-extrabold;
+    font-size: clamp(30px, 4vw, 48px);
+    line-height: 1.05;
+  }
+
+  .section-head p {
+    @apply m-0 max-w-[520px] leading-[1.75] text-muted;
+  }
+
+  .stats {
+    @apply relative z-[3] -mt-[34px] p-0;
+  }
+
+  .stats-grid {
+    @apply grid grid-cols-4 overflow-hidden rounded-card border border-line bg-white shadow-soft;
+  }
+
+  .stat {
+    @apply border-r border-line p-[26px];
+  }
+
+  .stat:last-child {
+    @apply border-r-0;
+  }
+
+  .stat strong {
+    @apply block text-[30px] leading-none text-teal;
+  }
+
+  .stat span {
+    @apply mt-[9px] block text-sm text-muted;
+  }
+
+  .services {
+    @apply bg-mist;
+  }
+
+  .service-grid,
+  .price-grid,
+  .review-grid {
+    @apply grid grid-cols-3 gap-[18px];
+  }
+
+  .service {
+    @apply min-h-[260px] overflow-hidden rounded-card border border-line bg-white;
+  }
+
+  .service-image {
+    @apply h-[152px] object-cover;
+  }
+
+  .service-body {
+    @apply p-5;
+  }
+
+  .service h3,
+  .step h3 {
+    @apply text-xl;
+  }
+
+  .service p {
+    @apply mt-2.5 leading-[1.65] text-muted;
+  }
+
+  .process-wrap {
+    @apply grid grid-cols-[0.9fr_1.1fr] items-center gap-[38px];
+  }
+
+  .process-photo {
+    @apply h-[560px] rounded-card object-cover shadow-soft;
+  }
+
+  .steps {
+    @apply grid gap-4;
+    counter-reset: step;
+  }
+
+  .step {
+    @apply grid grid-cols-[54px_1fr] items-start gap-4 border-b border-line py-[18px];
+    counter-increment: step;
+  }
+
+  .step:last-child {
+    @apply border-b-0;
+  }
+
+  .step::before {
+    @apply grid h-12 w-12 place-items-center rounded-full bg-teal font-extrabold text-white;
+    content: counter(step, decimal-leading-zero);
+  }
+
+  .step h3 {
+    @apply mb-2 mt-0;
+  }
+
+  .step p {
+    @apply m-0 leading-[1.7] text-muted;
+  }
+
+  .prices,
+  .gallery {
+    @apply bg-white;
+  }
+
+  .gallery {
+    @apply pt-0;
+  }
+
+  .price-card {
+    @apply rounded-card border border-line bg-paper p-[26px];
+  }
+
+  .price-card.featured {
+    @apply border-[#14302c] bg-[#14302c] text-white shadow-soft;
+  }
+
+  .price-card h3 {
+    @apply text-[22px];
+  }
+
+  .price {
+    @apply my-[18px] text-[38px] font-extrabold text-teal;
+  }
+
+  .featured .price {
+    @apply text-[#f3c66d];
+  }
+
+  .price small {
+    @apply text-sm font-semibold text-muted;
+  }
+
+  .featured .price small,
+  .featured li {
+    @apply text-white/80;
+  }
+
+  .price-card ul {
+    @apply m-0 grid list-none gap-3 p-0 text-muted;
+  }
+
+  .price-card li {
+    @apply flex items-start gap-2.5 leading-[1.55];
+  }
+
+  .price-card li svg {
+    @apply mt-0.5 h-[19px] w-[19px] flex-none text-sage;
+  }
+
+  .featured li svg {
+    @apply text-[#f3c66d];
+  }
+
+  .store-carousel {
+    @apply relative overflow-hidden rounded-card bg-[#10211f] shadow-soft;
+  }
+
+  .carousel-track {
+    @apply flex transition-transform duration-[420ms] ease-in-out;
+  }
+
+  .carousel-slide {
+    @apply relative m-0 min-w-full bg-[#10211f];
+    aspect-ratio: 16 / 8.2;
+  }
+
+  .carousel-image {
+    @apply h-full object-cover;
+  }
+
+  .carousel-caption {
+    @apply absolute inset-x-0 bottom-0 px-7 pb-6 pt-[52px] text-white;
+    background: linear-gradient(0deg, rgba(9, 22, 20, 0.82), rgba(9, 22, 20, 0));
+  }
+
+  .carousel-caption h3 {
+    @apply m-0 text-2xl;
+  }
+
+  .carousel-caption p {
+    @apply mb-0 mt-2 max-w-[560px] leading-[1.65] text-white/80;
+  }
+
+  .carousel-btn {
+    @apply absolute top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full border border-white/50 bg-[rgba(16,33,31,0.48)] text-white backdrop-blur-xl transition hover:scale-[1.04] hover:bg-[rgba(16,33,31,0.72)];
+  }
+
+  .carousel-btn.prev {
+    @apply left-[18px];
+  }
+
+  .carousel-btn.next {
+    @apply right-[18px];
+  }
+
+  .carousel-dots {
+    @apply absolute bottom-6 right-6 flex gap-2;
+  }
+
+  .carousel-dot {
+    @apply h-[9px] w-[9px] cursor-pointer rounded-full border-0 bg-white/50 p-0;
+  }
+
+  .carousel-dot.active {
+    @apply bg-white;
+  }
+
+  .reviews {
+    @apply bg-mist;
+  }
+
+  .review {
+    @apply rounded-card border border-line bg-white p-6;
+  }
+
+  .stars {
+    @apply font-black text-gold;
+  }
+
+  .review p {
+    @apply mb-5 mt-4 leading-[1.75] text-muted;
+  }
+
+  .review h3 {
+    @apply text-base;
+  }
+
+  .visit {
+    @apply text-white;
+    background:
+      linear-gradient(90deg, rgba(20, 48, 44, 0.92), rgba(20, 48, 44, 0.62)),
+      url("https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&w=1800&q=82") center / cover;
+  }
+
+  .visit-grid {
+    @apply grid grid-cols-[1fr_420px] items-start gap-11;
+  }
+
+  .visit h2 {
+    @apply m-0 font-extrabold;
+    font-size: clamp(34px, 5vw, 62px);
+    line-height: 1.04;
+  }
+
+  .visit p {
+    @apply mt-5 max-w-[660px] leading-[1.8] text-white/80;
+  }
+
+  .info-list {
+    @apply mt-[30px] grid gap-3.5;
+  }
+
+  .info-item {
+    @apply flex items-center gap-3 text-white/90;
+  }
+
+  .map-card {
+    @apply mt-7 overflow-hidden rounded-card border border-white/25 bg-[#fff8ef] shadow-[0_18px_42px_rgba(7,22,20,0.24)];
+  }
+
+  .pet-map {
+    @apply block h-auto min-h-[260px] w-full;
+  }
+
+  .map-card-title {
+    @apply flex items-center gap-2.5 border-t border-[#eadcca] bg-white px-4 py-3.5 font-extrabold text-[#503a2a];
+  }
+
+  .map-card-title svg {
+    @apply flex-none text-coral;
+  }
+
+  .booking-panel {
+    @apply rounded-card border border-white/30 bg-white/90 p-6 text-ink shadow-soft;
+  }
+
+  .booking-panel h3 {
+    @apply mb-4 mt-0 text-2xl;
+  }
+
+  .visit-side {
+    @apply grid gap-[18px];
+  }
+
+  .footer {
+    @apply bg-[#10211f] py-7 text-sm text-white/70;
+  }
+
+  .footer-inner {
+    @apply mx-auto flex flex-wrap justify-between gap-[18px];
+    width: min(1160px, calc(100% - 36px));
+  }
+
+  .toast {
+    @apply pointer-events-none fixed bottom-[22px] right-[22px] z-50 max-w-[min(360px,calc(100%-44px))] translate-y-3.5 rounded-card bg-[#14302c] px-4 py-3.5 text-white opacity-0 shadow-soft transition;
+  }
+
+  .toast.show {
+    @apply translate-y-0 opacity-100;
+  }
+}
+
+@media (max-width: 920px) {
+  .nav {
+    @apply h-16;
+  }
+
+  .menu-toggle {
+    @apply inline-flex;
+  }
+
+  .nav-links {
+    @apply fixed left-[18px] right-[18px] top-16 hidden rounded-card border border-white/30 bg-[rgba(19,31,29,0.94)] p-[18px] shadow-soft;
+  }
+
+  .nav-links.open {
+    @apply grid;
+  }
+
+  .nav-cta {
+    @apply hidden;
+  }
+
+  .hero {
+    @apply min-h-0 pb-[42px] pt-[108px];
+  }
+
+  .hero-inner,
+  .process-wrap,
+  .visit-grid {
+    @apply grid-cols-1;
+  }
+
+  .quick-book {
+    @apply max-w-[540px];
+  }
+
+  .stats-grid,
+  .service-grid,
+  .price-grid,
+  .review-grid {
+    @apply grid-cols-2;
+  }
+
+  .stat:nth-child(2) {
+    @apply border-r-0;
+  }
+
+  .stat:nth-child(1),
+  .stat:nth-child(2) {
+    @apply border-b border-line;
+  }
+
+  .section-head {
+    @apply flex-col items-start;
+  }
+
+  .process-photo {
+    @apply h-[420px];
+  }
+
+  .carousel-slide {
+    aspect-ratio: 16 / 9.6;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav {
+    width: min(100% - 28px, 1160px);
+  }
+
+  .brand {
+    @apply text-[17px];
+  }
+
+  .hero,
+  main section {
+    @apply px-0;
+  }
+
+  .hero-inner,
+  .section-inner,
+  .footer-inner {
+    width: min(100% - 28px, 1160px);
+  }
+
+  .hero-copy p:not(.eyebrow) {
+    @apply text-base;
+  }
+
+  .hero-actions {
+    @apply grid;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    @apply w-full;
+  }
+
+  .form-grid,
+  .stats-grid,
+  .service-grid,
+  .price-grid,
+  .review-grid {
+    @apply grid-cols-1;
+  }
+
+  .stat {
+    @apply border-b border-r-0 border-line;
+  }
+
+  .stat:last-child {
+    @apply border-b-0;
+  }
+
+  .carousel-slide {
+    aspect-ratio: 4 / 3.5;
+  }
+
+  .carousel-caption {
+    @apply px-[18px] pb-[18px] pt-[58px];
+  }
+
+  .carousel-caption h3 {
+    @apply text-xl;
+  }
+
+  .carousel-caption p {
+    @apply text-sm;
+  }
+
+  .carousel-btn {
+    @apply h-[38px] w-[38px];
+  }
+
+  .carousel-btn.prev {
+    @apply left-2.5;
+  }
+
+  .carousel-btn.next {
+    @apply right-2.5;
+  }
+
+  .carousel-dots {
+    @apply bottom-[18px] right-[18px];
+  }
+}
