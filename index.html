@@ -762,6 +762,10 @@
       resize: vertical;
     }
 
+    .quick-note {
+      min-height: 74px;
+    }
+
     .visit-side {
       display: grid;
       gap: 18px;
@@ -1032,6 +1036,10 @@
                   <option>17:30</option>
                 </select>
               </div>
+            </div>
+            <div class="field">
+              <label for="quickNote">备注</label>
+              <textarea class="quick-note" id="quickNote" name="note" placeholder="体型、毛结、敏感点或偏好"></textarea>
             </div>
             <button class="primary-btn" type="submit"><i data-lucide="send" aria-hidden="true"></i>提交预约</button>
           </form>

@@ -243,6 +243,15 @@ export default function Home() {
                     </select>
                   </div>
                 </div>
+                <div className="field">
+                  <label htmlFor="quickNote">备注</label>
+                  <textarea
+                    className="quick-note"
+                    id="quickNote"
+                    name="note"
+                    placeholder="体型、毛结、敏感点或偏好"
+                  />
+                </div>
                 <button className="primary-btn" type="submit">
                   <Send aria-hidden="true" />
                   提交预约

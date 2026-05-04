@@ -170,6 +170,10 @@
     @apply min-h-[92px] resize-y;
   }
 
+  .quick-note {
+    @apply min-h-[74px];
+  }
+
   .form-grid {
     @apply grid grid-cols-2 gap-3;
   }
