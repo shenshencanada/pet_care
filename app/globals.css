@@ -427,7 +427,7 @@
   }
 
   .visit-grid {
-    @apply grid grid-cols-[1fr_420px] items-start gap-11;
+    @apply grid grid-cols-1 items-start gap-7;
   }
 
   .visit h2 {
@@ -449,7 +449,7 @@
   }
 
   .map-card {
-    @apply mt-7 overflow-hidden rounded-card border border-white/25 bg-[#fff8ef] shadow-[0_18px_42px_rgba(7,22,20,0.24)];
+    @apply mt-0 overflow-hidden rounded-card border border-white/25 bg-[#fff8ef] shadow-[0_18px_42px_rgba(7,22,20,0.24)];
   }
 
   .pet-map {
@@ -473,7 +473,7 @@
   }
 
   .visit-side {
-    @apply grid gap-[18px];
+    @apply grid w-full max-w-[760px] gap-[18px];
   }
 
   .footer {
