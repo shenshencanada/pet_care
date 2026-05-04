@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { CSSProperties, FormEvent, useState } from "react";
 import Image from "next/image";
 import {
   CalendarCheck,
@@ -112,8 +112,13 @@ const gallerySlides = [
 
 const reviews = [
   ["我家狗以前一吹风就紧张，这次出来状态很放松，毛也吹得很透。", "可乐妈妈"],
-  ["猫咪第一次洗澡没有应激，店员会先沟通性格和禁忌点，很专业。", "团子爸爸"],
-  ["修出来的造型清爽自然，不是只追求可爱，日常梳毛轻松多了。", "糯米主人"],
+  ["猫咪第一次洗澡没有应激，店员会先沟通性格和禁忌点，整个过程很专业。", "团子爸爸"],
+  ["修出来的造型清爽自然，不是只追求可爱，回家以后日常梳毛轻松多了。", "糯米主人"],
+  ["预约前会确认皮肤情况和疫苗时间，洗完还会说清楚耳朵、指甲和毛结状况。", "豆豆姐姐"],
+  ["我们家是老年犬，护理师动作很稳，会给它中途休息，不会赶时间。", "Lucky爸爸"],
+  ["店里没有刺鼻香味，猫咪回家也没有一直舔毛，能看出来用品比较温和。", "芝麻妈妈"],
+  ["第一次做造型前先聊了生活习惯，最后剪得好打理，也保留了它自己的样子。", "芋圆主人"],
+  ["最安心的是透明工作区，能看到护理节奏，工作人员也会及时反馈状态。", "Momo妈妈"],
 ];
 
 function getTodayValue() {
@@ -412,14 +417,20 @@ export default function Home() {
               <h2>主人们常这么说</h2>
               <p>我们最在意的是宠物愿意再来，主人也能安心把它交给我们。</p>
             </div>
-            <div className="review-grid">
-              {reviews.map(([body, author]) => (
-                <article className="review" key={author}>
-                  <div className="stars">★★★★★</div>
-                  <p>{body}</p>
-                  <h3>{author}</h3>
-                </article>
-              ))}
+            <div
+              className="review-carousel"
+              style={{ "--review-count": reviews.length } as CSSProperties}
+              aria-label="顾客评价轮播"
+            >
+              <div className="review-track">
+                {[...reviews, ...reviews].map(([body, author], index) => (
+                  <article className="review" key={`${author}-${index}`} aria-hidden={index >= reviews.length}>
+                    <div className="stars">★★★★★</div>
+                    <p>{body}</p>
+                    <h3>{author}</h3>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </section>

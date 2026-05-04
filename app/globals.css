@@ -230,8 +230,7 @@
   }
 
   .service-grid,
-  .price-grid,
-  .review-grid {
+  .price-grid {
     @apply grid grid-cols-3 gap-[18px];
   }
 
@@ -403,8 +402,30 @@
     @apply bg-mist;
   }
 
+  .review-carousel {
+    --review-gap: 18px;
+    --review-count: 8;
+    --review-size: calc((100cqw - (var(--review-gap) * 2)) / 3);
+    container-type: inline-size;
+    @apply overflow-hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+
+  .review-track {
+    @apply flex;
+    gap: var(--review-gap);
+    width: max-content;
+    animation: review-scroll 34s linear infinite;
+  }
+
+  .review-carousel:hover .review-track {
+    animation-play-state: paused;
+  }
+
   .review {
-    @apply rounded-card border border-line bg-white p-6;
+    @apply min-h-[236px] rounded-card border border-line bg-white p-6;
+    flex: 0 0 var(--review-size);
+    width: var(--review-size);
   }
 
   .stars {
@@ -417,6 +438,12 @@
 
   .review h3 {
     @apply text-base;
+  }
+
+  @keyframes review-scroll {
+    to {
+      transform: translateX(calc(-1 * ((var(--review-size) + var(--review-gap)) * var(--review-count))));
+    }
   }
 
   .visit {
@@ -531,9 +558,12 @@
 
   .stats-grid,
   .service-grid,
-  .price-grid,
-  .review-grid {
+  .price-grid {
     @apply grid-cols-2;
+  }
+
+  .review-carousel {
+    --review-size: calc((100cqw - var(--review-gap)) / 2);
   }
 
   .stat:nth-child(2) {
@@ -594,9 +624,18 @@
   .form-grid,
   .stats-grid,
   .service-grid,
-  .price-grid,
-  .review-grid {
+  .price-grid {
     @apply grid-cols-1;
+  }
+
+  .review-carousel {
+    --review-gap: 14px;
+    --review-size: 100cqw;
+    mask-image: none;
+  }
+
+  .review {
+    @apply min-h-[250px];
   }
 
   .stat {

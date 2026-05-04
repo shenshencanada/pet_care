@@ -637,10 +637,24 @@
       background: var(--mist);
     }
 
-    .review-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+    .review-carousel {
+      --review-gap: 18px;
+      --review-count: 8;
+      --review-size: calc((100cqw - (var(--review-gap) * 2)) / 3);
+      container-type: inline-size;
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    }
+
+    .review-track {
+      display: flex;
+      gap: var(--review-gap);
+      width: max-content;
+      animation: review-scroll 34s linear infinite;
+    }
+
+    .review-carousel:hover .review-track {
+      animation-play-state: paused;
     }
 
     .review {
@@ -648,6 +662,9 @@
       border-radius: var(--radius);
       padding: 24px;
       background: #fff;
+      flex: 0 0 var(--review-size);
+      width: var(--review-size);
+      min-height: 236px;
     }
 
     .stars {
@@ -664,6 +681,12 @@
 
     .review h3 {
       font-size: 16px;
+    }
+
+    @keyframes review-scroll {
+      to {
+        transform: translateX(calc(-1 * ((var(--review-size) + var(--review-gap)) * var(--review-count))));
+      }
     }
 
     .visit {
@@ -858,9 +881,12 @@
 
       .stats-grid,
       .service-grid,
-      .price-grid,
-      .review-grid {
+      .price-grid {
         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .review-carousel {
+        --review-size: calc((100cqw - var(--review-gap)) / 2);
       }
 
       .stat:nth-child(2) {
@@ -923,9 +949,18 @@
       .form-grid,
       .stats-grid,
       .service-grid,
-      .price-grid,
-      .review-grid {
+      .price-grid {
         grid-template-columns: 1fr;
+      }
+
+      .review-carousel {
+        --review-gap: 14px;
+        --review-size: 100cqw;
+        mask-image: none;
+      }
+
+      .review {
+        min-height: 250px;
       }
 
       .stat {
@@ -1218,22 +1253,89 @@
           <h2>主人们常这么说</h2>
           <p>我们最在意的是宠物愿意再来，主人也能安心把它交给我们。</p>
         </div>
-        <div class="review-grid">
-          <article class="review">
-            <div class="stars">★★★★★</div>
-            <p>我家狗以前一吹风就紧张，这次出来状态很放松，毛也吹得很透。</p>
-            <h3>可乐妈妈</h3>
-          </article>
-          <article class="review">
-            <div class="stars">★★★★★</div>
-            <p>猫咪第一次洗澡没有应激，店员会先沟通性格和禁忌点，很专业。</p>
-            <h3>团子爸爸</h3>
-          </article>
-          <article class="review">
-            <div class="stars">★★★★★</div>
-            <p>修出来的造型清爽自然，不是只追求可爱，日常梳毛轻松多了。</p>
-            <h3>糯米主人</h3>
-          </article>
+        <div class="review-carousel" style="--review-count: 8;" aria-label="顾客评价轮播">
+          <div class="review-track">
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>我家狗以前一吹风就紧张，这次出来状态很放松，毛也吹得很透。</p>
+              <h3>可乐妈妈</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>猫咪第一次洗澡没有应激，店员会先沟通性格和禁忌点，整个过程很专业。</p>
+              <h3>团子爸爸</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>修出来的造型清爽自然，不是只追求可爱，回家以后日常梳毛轻松多了。</p>
+              <h3>糯米主人</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>预约前会确认皮肤情况和疫苗时间，洗完还会说清楚耳朵、指甲和毛结状况。</p>
+              <h3>豆豆姐姐</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>我们家是老年犬，护理师动作很稳，会给它中途休息，不会赶时间。</p>
+              <h3>Lucky爸爸</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>店里没有刺鼻香味，猫咪回家也没有一直舔毛，能看出来用品比较温和。</p>
+              <h3>芝麻妈妈</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>第一次做造型前先聊了生活习惯，最后剪得好打理，也保留了它自己的样子。</p>
+              <h3>芋圆主人</h3>
+            </article>
+            <article class="review">
+              <div class="stars">★★★★★</div>
+              <p>最安心的是透明工作区，能看到护理节奏，工作人员也会及时反馈状态。</p>
+              <h3>Momo妈妈</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>我家狗以前一吹风就紧张，这次出来状态很放松，毛也吹得很透。</p>
+              <h3>可乐妈妈</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>猫咪第一次洗澡没有应激，店员会先沟通性格和禁忌点，整个过程很专业。</p>
+              <h3>团子爸爸</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>修出来的造型清爽自然，不是只追求可爱，回家以后日常梳毛轻松多了。</p>
+              <h3>糯米主人</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>预约前会确认皮肤情况和疫苗时间，洗完还会说清楚耳朵、指甲和毛结状况。</p>
+              <h3>豆豆姐姐</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>我们家是老年犬，护理师动作很稳，会给它中途休息，不会赶时间。</p>
+              <h3>Lucky爸爸</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>店里没有刺鼻香味，猫咪回家也没有一直舔毛，能看出来用品比较温和。</p>
+              <h3>芝麻妈妈</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>第一次做造型前先聊了生活习惯，最后剪得好打理，也保留了它自己的样子。</p>
+              <h3>芋圆主人</h3>
+            </article>
+            <article class="review" aria-hidden="true">
+              <div class="stars">★★★★★</div>
+              <p>最安心的是透明工作区，能看到护理节奏，工作人员也会及时反馈状态。</p>
+              <h3>Momo妈妈</h3>
+            </article>
+          </div>
         </div>
       </div>
     </section>
