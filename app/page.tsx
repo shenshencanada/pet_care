@@ -135,19 +135,49 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
-  const [dateValue, setDateValue] = useState(getTomorrowValue);
+  const [toastMessage, setToastMessage] = useState("预约已记录，我们会尽快联系您确认时间。");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [quickDateValue, setQuickDateValue] = useState(getTomorrowValue);
+  const [bookingDateValue, setBookingDateValue] = useState(getTomorrowValue);
   const [minDate] = useState(getTodayValue);
 
-  function showToast() {
+  function showToast(message: string) {
+    setToastMessage(message);
     setToastVisible(true);
     window.setTimeout(() => setToastVisible(false), 2600);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    event.currentTarget.reset();
-    setDateValue(getTomorrowValue());
-    showToast();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      const result = (await response.json()) as { message?: string };
+
+      if (!response.ok) {
+        throw new Error(result.message ?? "预约暂时无法提交，请稍后再试。");
+      }
+
+      form.reset();
+      setQuickDateValue(getTomorrowValue());
+      setBookingDateValue(getTomorrowValue());
+      showToast("预约已记录，我们会尽快联系您确认时间。");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "预约暂时无法提交，请稍后再试。");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function setSlide(index: number) {
@@ -218,6 +248,7 @@ export default function Home() {
                 <Sparkles aria-hidden="true" />
               </header>
               <form className="booking-form" onSubmit={handleSubmit}>
+                <input name="source" type="hidden" value="quick" />
                 <div className="field">
                   <label htmlFor="quickPet">宠物类型</label>
                   <select id="quickPet" name="pet">
@@ -227,6 +258,14 @@ export default function Home() {
                     <option>长毛猫</option>
                   </select>
                 </div>
+                <div className="field">
+                  <label htmlFor="quickPetName">宠物名字（选填）</label>
+                  <input id="quickPetName" name="petName" placeholder="例如：团子" />
+                </div>
+                <div className="field">
+                  <label htmlFor="quickPhone">手机</label>
+                  <input id="quickPhone" name="phone" autoComplete="tel" placeholder="用于确认预约" required />
+                </div>
                 <div className="form-grid">
                   <div className="field">
                     <label htmlFor="quickDate">日期</label>
@@ -235,8 +274,8 @@ export default function Home() {
                       name="date"
                       type="date"
                       min={minDate}
-                      value={dateValue}
-                      onChange={(event) => setDateValue(event.target.value)}
+                      value={quickDateValue}
+                      onChange={(event) => setQuickDateValue(event.target.value)}
                     />
                   </div>
                   <div className="field">
@@ -257,9 +296,9 @@ export default function Home() {
                     placeholder="体型、毛结、敏感点或偏好"
                   />
                 </div>
-                <button className="primary-btn" type="submit">
+                <button className="primary-btn" type="submit" disabled={isSubmitting}>
                   <Send aria-hidden="true" />
-                  提交预约
+                  {isSubmitting ? "提交中" : "提交预约"}
                 </button>
               </form>
             </aside>
@@ -466,13 +505,14 @@ export default function Home() {
               <aside className="booking-panel" id="booking">
                 <h3>预约到店</h3>
                 <form className="booking-form" onSubmit={handleSubmit}>
+                  <input name="source" type="hidden" value="full" />
                   <div className="field">
                     <label htmlFor="name">联系人</label>
-                    <input id="name" name="name" autoComplete="name" placeholder="您的称呼" />
+                    <input id="name" name="name" autoComplete="name" placeholder="您的称呼" required />
                   </div>
                   <div className="field">
                     <label htmlFor="phone">手机</label>
-                    <input id="phone" name="phone" autoComplete="tel" placeholder="用于确认预约" />
+                    <input id="phone" name="phone" autoComplete="tel" placeholder="用于确认预约" required />
                   </div>
                   <div className="form-grid">
                     <div className="field">
@@ -483,11 +523,36 @@ export default function Home() {
                       </select>
                     </div>
                     <div className="field">
-                      <label htmlFor="package">套餐</label>
-                      <select id="package" name="package">
-                        <option>全身精护</option>
-                        <option>轻盈洁净</option>
-                        <option>造型焕新</option>
+                      <label htmlFor="petName">宠物名字（选填）</label>
+                      <input id="petName" name="petName" placeholder="例如：团子" />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="package">套餐</label>
+                    <select id="package" name="package">
+                      <option>全身精护</option>
+                      <option>轻盈洁净</option>
+                      <option>造型焕新</option>
+                    </select>
+                  </div>
+                  <div className="form-grid">
+                    <div className="field">
+                      <label htmlFor="bookingDate">日期</label>
+                      <input
+                        id="bookingDate"
+                        name="date"
+                        type="date"
+                        min={minDate}
+                        value={bookingDateValue}
+                        onChange={(event) => setBookingDateValue(event.target.value)}
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="bookingTime">时段</label>
+                      <select id="bookingTime" name="time">
+                        <option>10:30</option>
+                        <option>14:00</option>
+                        <option>17:30</option>
                       </select>
                     </div>
                   </div>
@@ -495,9 +560,9 @@ export default function Home() {
                     <label htmlFor="note">备注</label>
                     <textarea id="note" name="note" placeholder="体型、毛结、敏感点或偏好时段" />
                   </div>
-                  <button className="primary-btn" type="submit">
+                  <button className="primary-btn" type="submit" disabled={isSubmitting}>
                     <CalendarCheck aria-hidden="true" />
-                    发送预约
+                    {isSubmitting ? "发送中" : "发送预约"}
                   </button>
                 </form>
               </aside>
@@ -514,7 +579,7 @@ export default function Home() {
       </footer>
 
       <div className={`toast ${toastVisible ? "show" : ""}`} role="status" aria-live="polite">
-        预约已记录，我们会尽快联系您确认时间。
+        {toastMessage}
       </div>
     </>
   );
