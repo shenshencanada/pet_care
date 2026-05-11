@@ -30,6 +30,7 @@
 - `npm run appointments:schema`：创建或更新 Supabase 中的预约管理相关表。
 - `npm run staff:schema`：创建或更新 Supabase 中的员工登录相关表。
 - `npm run staff:create`：创建或更新员工账号，密码会自动写入哈希。
+- `npm run api-client:create`：创建第三方 REST API 调用方，生成一次性显示的 API Key，数据库只保存哈希。
 
 ## 目录与关键文件
 
@@ -40,6 +41,12 @@
 - `next.config.ts`：Next 配置，目前主要配置远程图片域名。
 - `eslint.config.mjs`：使用 Next Core Web Vitals 和 TypeScript ESLint 配置。
 - `middleware.ts`：保护 `/staff` 和 `/staff/*` 后台路由，未登录时跳转到员工登录页。
+- `API.md`：第三方预约 RESTful API 文档，包含鉴权、字段、错误格式、curl 示例和联调建议。
+- `app/api/v1/appointments/route.ts`：第三方预约 REST API 的列表查询和创建接口。
+- `app/api/v1/appointments/[id]/route.ts`：第三方预约 REST API 的单条查询和客户侧改约接口。
+- `app/api/v1/appointments/[id]/cancel/route.ts`：第三方预约 REST API 的取消预约接口。
+- `app/api/v1/appointment-slots/route.ts`：第三方查询固定可预约时段接口。
+- `app/api/v1/appointment-packages/route.ts`：第三方查询固定套餐接口。
 - `app/staff/login/page.tsx`：员工登录页，包含账号、密码和“记住我”选项。
 - `app/staff/page.tsx`：员工后台首页，展示当前员工和后台功能入口占位。
 - `app/staff/appointments/page.tsx`：员工预约管理页面，展示今日视图、本周日历看板、状态筛选和周切换。
@@ -61,12 +68,14 @@
 - `lib/staff-session.ts`：员工登录 Cookie 名称、会话时长、签名和校验逻辑。
 - `lib/staff-password.ts`：员工密码哈希和校验逻辑，使用带盐 `pbkdf2_sha256`。
 - `lib/appointments.ts`：预约状态、状态文案、预约时段和预约视图类型。
+- `lib/public-api.ts`：第三方 REST API 的 Bearer API Key 鉴权、统一错误响应、预约响应映射和输入校验工具。
 - `lib/db.ts`：Postgres 连接池复用工具，优先读取 `SUPABASE_SESSION_POOLER_URL`，其次读取 `DATABASE_URL`。
 - `database/appointments.sql`：预约管理表、索引、状态约束、更新时间触发器、旧表字段迁移逻辑，以及 RLS 和 Data API 权限加固。
 - `database/staff-users.sql`：员工账号表、登录失败记录表及相关索引、更新时间触发器，以及 RLS 和 Data API 权限加固。
 - `scripts/apply-appointments-schema.mjs`：执行 `database/appointments.sql` 的建表或迁移脚本。
 - `scripts/apply-staff-schema.mjs`：执行 `database/staff-users.sql` 的建表脚本。
 - `scripts/create-staff-user.mjs`：创建或更新员工账号的脚本。
+- `scripts/create-api-client.mjs`：创建第三方 API client 的脚本，会生成 `pc_` 开头的 API Key 并只保存 SHA-256 哈希。
 - `public/assets/`：页面实际引用的本地门店环境图片。
 - `assets/`：保留了一份相同的门店图片资源。
 - `index.html`：静态 HTML 版本，内容和视觉风格与 Next 页面接近，可视为原型或备份，不是当前 Next 应用的主入口。
@@ -89,7 +98,8 @@
 - 预约数据保存在 Supabase Postgres 的 `public.appointments` 表中。
 - 前台快速预约和完整预约都会通过 `POST /api/appointments` 创建预约记录。
 - 员工后台可以通过 `POST /api/staff/appointments` 手动新增预约，来源 `source` 记为 `staff`，中文展示为“后台录入”。
-- 预约来源 `source` 固定支持 `quick`、`full`、`staff`，分别对应快速预约、完整预约、后台录入。
+- 第三方平台可以通过 `/api/v1/appointments` 创建预约，来源 `source` 记为 `api`，中文展示为“外部 API”。
+- 预约来源 `source` 固定支持 `quick`、`full`、`staff`、`api`，分别对应快速预约、完整预约、后台录入、外部 API。
 - 新预约默认状态为 `pending`，中文显示为“待确认”。
 - 预约状态固定支持 `pending`、`confirmed`、`arrived`、`completed`、`canceled`，分别对应“待确认、已确认、已到店、已完成、已取消”。
 - 预约时段当前固定为 `10:30`、`14:00`、`17:30`。
@@ -108,9 +118,27 @@
 - 员工回访快速预约客户后，可以在预约详情中补充或修正联系人称呼、手机号码和套餐选择；完整预约也复用这套编辑能力，方便纠错。
 - 后台可选套餐固定为“轻盈洁净、全身精护、造型焕新”，对应共享常量 `APPOINTMENT_PACKAGES`。
 - 员工备注只在后台展示，不返回给前台客户。
+- 第三方 REST API 不返回员工备注、最后处理员工等内部字段。
 - 员工手动新增预约时可以同时填写客户备注和员工备注，员工备注仍只在后台展示。
 - 员工更新预约会调用 `PATCH /api/staff/appointments/[id]`，支持保存联系人、手机、套餐、预约日期、预约时段、状态和员工备注，并记录最后处理员工。
 - 员工后台首页 `/staff` 的“预约管理”卡片会跳转到 `/staff/appointments?view=today`，并展示今日待确认和已确认数量。
+
+## 第三方预约 REST API
+
+- REST API 文档见 `API.md`。
+- API 统一前缀为 `/api/v1`，所有开放接口都要求 `Authorization: Bearer <api_key>`。
+- API Key 由 `npm run api-client:create` 创建，明文只显示一次；不要把真实 API Key 写入代码、文档、截图或 Git。
+- API client 信息保存在 `public.api_clients` 表，`api_key_hash` 使用 SHA-256 哈希保存，`is_active=false` 时不能继续调用。
+- 第三方预约创建接口为 `POST /api/v1/appointments`，默认写入 `source='api'`、`status='pending'`。
+- 第三方可调用 `GET /api/v1/appointments`、`GET /api/v1/appointments/[id]` 查询自己创建的预约。
+- 第三方可调用 `PATCH /api/v1/appointments/[id]` 修改客户侧字段、预约日期和时段，但不能修改员工备注或内部处理状态。
+- 第三方可调用 `POST /api/v1/appointments/[id]/cancel` 取消预约，写入 `status='canceled'` 和可选 `canceled_reason`。
+- 第三方可调用 `GET /api/v1/appointment-slots?date=YYYY-MM-DD` 查询固定时段；第一版不做容量限制，统一返回 `available: true`。
+- 第三方可调用 `GET /api/v1/appointment-packages` 查询固定套餐。
+- 外部平台建议传入 `externalSource` 和 `externalId`；同一个 API client 下 `external_source + external_id` 唯一，用于防重复提交。
+- 第三方 API 只能访问当前 API client 创建的预约，不能读取官网、员工后台或其他 API client 创建的预约。
+- 已取消或已完成的预约不能通过第三方 API 继续修改或重复取消。
+- 第三方 API 错误响应统一为 `{ error: { code, message, details? } }`。
 
 ## 员工登录功能
 
@@ -138,10 +166,10 @@
 ## 数据库与安全
 
 - 当前业务表保留在 Supabase Postgres 的 `public` schema 中，但敏感表必须做 Data API 加固。
-- `public.appointments`、`public.staff_users`、`public.staff_login_attempts` 已开启 Row Level Security（RLS）。
-- 上述三张表已撤销 `anon` 和 `authenticated` 的表级权限，避免浏览器端通过 Supabase Data API 直接访问客户预约、员工账号、密码哈希或登录失败记录。
+- `public.appointments`、`public.customers`、`public.pets`、`public.follow_ups`、`public.api_clients`、`public.staff_users`、`public.staff_login_attempts` 已开启 Row Level Security（RLS）。
+- 上述敏感表已撤销 `anon` 和 `authenticated` 的表级权限，避免浏览器端通过 Supabase Data API 直接访问客户预约、客户档案、宠物档案、API Key 哈希、员工账号、密码哈希或登录失败记录。
 - 当前项目的数据库读写由 Next.js 服务端通过 `lib/db.ts` 的 `pg` 连接池完成，优先读取 `SUPABASE_SESSION_POOLER_URL`，其次读取 `DATABASE_URL`。
-- 不要在浏览器端使用 Supabase client 直接查询或修改 `appointments`、`staff_users`、`staff_login_attempts`。
+- 不要在浏览器端使用 Supabase client 直接查询或修改 `appointments`、`customers`、`pets`、`follow_ups`、`api_clients`、`staff_users`、`staff_login_attempts`。
 - 除非有明确前台 Data API 访问需求，不要为 `anon` 或 `authenticated` 创建这些敏感表的 RLS policy。
 - 新增包含客户信息、员工信息、登录安全信息或后台管理数据的表时，需要在对应 SQL 脚本中同步开启 RLS，并撤销 `anon`、`authenticated` 的直接表权限。
 
@@ -159,8 +187,11 @@
 - 新增本地图片应放在 `public/assets/` 下，才能通过 `/assets/...` 在页面中访问。
 - 使用远程图片时，需要确认域名是否已加入 `next.config.ts` 的 `images.remotePatterns`。
 - 修改预约数据结构时，需要同步更新 `database/appointments.sql`、`lib/appointments.ts`、`app/api/appointments/route.ts` 和员工预约管理相关 API。
+- 修改第三方 REST API 时，需要同步更新 `API.md`、`lib/public-api.ts`、`app/api/v1/*` 和相关数据库字段。
 - 如果已有旧版 `public.appointments` 表，`npm run appointments:schema` 会补齐新版预约管理字段，并把旧 `note` 字段内容迁移到 `customer_note`。
-- 新增预约状态、来源或时段时，需要同步更新 `lib/appointments.ts`、`database/appointments.sql`、前台表单选项和后台日历看板展示逻辑。
+- 新增预约状态、来源或时段时，需要同步更新 `lib/appointments.ts`、`database/appointments.sql`、前台表单选项、第三方 REST API 文档和后台日历看板展示逻辑。
+- 修改套餐或时段常量时，需要确认 `/api/v1/appointment-packages`、`/api/v1/appointment-slots` 和 `API.md` 仍一致。
+- 修改 API Key 或 API client 逻辑时，不要记录真实 API Key；数据库只应保存哈希。
 - 如果新增真实通知能力，例如短信、微信或邮件，需要在预约创建或状态变更后补充外部服务集成。
 - 新增员工账号时，优先使用 `npm run staff:create`，不要手动写入明文密码。
 - 修改员工登录数据库结构时，需要同步更新 `database/staff-users.sql` 和相关脚本。
