@@ -21,7 +21,7 @@ export const runtime = "nodejs";
 
 type AppointmentRow = {
   id: string;
-  source: "quick" | "full" | "staff";
+  source: "quick" | "full" | "staff" | "api";
   customer_id: string | null;
   pet_id: string | null;
   contact_name: string | null;

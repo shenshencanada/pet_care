@@ -4,7 +4,7 @@ export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
 
 export type AppointmentView = {
   id: string;
-  source: "quick" | "full" | "staff";
+  source: "quick" | "full" | "staff" | "api";
   customerId: string | null;
   petId: string | null;
   contactName: string | null;

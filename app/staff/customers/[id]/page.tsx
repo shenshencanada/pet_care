@@ -35,7 +35,7 @@ type PetRow = {
 
 type AppointmentRow = {
   id: string;
-  source: "quick" | "full" | "staff";
+  source: "quick" | "full" | "staff" | "api";
   contact_name: string | null;
   phone: string | null;
   pet_name: string | null;

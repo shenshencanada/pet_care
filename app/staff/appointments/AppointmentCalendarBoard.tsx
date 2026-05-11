@@ -50,6 +50,7 @@ const sourceLabels: Record<AppointmentView["source"], string> = {
   quick: "快速预约",
   full: "完整预约",
   staff: "后台录入",
+  api: "外部 API",
 };
 
 async function readApiResult(response: Response) {

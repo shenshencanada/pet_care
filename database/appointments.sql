@@ -2,9 +2,12 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.appointments (
   id uuid primary key default gen_random_uuid(),
-  source text not null default 'full' check (source in ('quick', 'full', 'staff')),
+  source text not null default 'full' check (source in ('quick', 'full', 'staff', 'api')),
   customer_id uuid,
   pet_id uuid,
+  api_client_id uuid,
+  external_source text,
+  external_id text,
   contact_name text,
   phone text not null,
   pet_type text not null,
@@ -13,9 +16,19 @@ create table if not exists public.appointments (
   appointment_time time not null,
   customer_note text,
   staff_note text,
+  canceled_reason text,
   status text not null default 'pending' check (status in ('pending', 'confirmed', 'arrived', 'completed', 'canceled')),
   status_changed_at timestamptz not null default now(),
   handled_by_staff_id uuid references public.staff_users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.api_clients (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  api_key_hash text not null unique,
+  is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -68,6 +81,9 @@ alter table public.appointments
   add column if not exists source text not null default 'full',
   add column if not exists customer_id uuid,
   add column if not exists pet_id uuid,
+  add column if not exists api_client_id uuid,
+  add column if not exists external_source text,
+  add column if not exists external_id text,
   add column if not exists contact_name text,
   add column if not exists phone text,
   add column if not exists pet_type text,
@@ -76,9 +92,17 @@ alter table public.appointments
   add column if not exists appointment_time time,
   add column if not exists customer_note text,
   add column if not exists staff_note text,
+  add column if not exists canceled_reason text,
   add column if not exists status text not null default 'pending',
   add column if not exists status_changed_at timestamptz not null default now(),
   add column if not exists handled_by_staff_id uuid references public.staff_users(id) on delete set null,
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
+
+alter table public.api_clients
+  add column if not exists name text,
+  add column if not exists api_key_hash text,
+  add column if not exists is_active boolean not null default true,
   add column if not exists created_at timestamptz not null default now(),
   add column if not exists updated_at timestamptz not null default now();
 
@@ -176,6 +200,12 @@ set status = coalesce(nullif(status, ''), 'pending'),
     created_at = coalesce(created_at, now()),
     updated_at = coalesce(updated_at, now());
 
+update public.api_clients
+set name = coalesce(nullif(name, ''), '未命名 API 调用方'),
+    is_active = coalesce(is_active, true),
+    created_at = coalesce(created_at, now()),
+    updated_at = coalesce(updated_at, now());
+
 update public.appointments
 set status = 'canceled'
 where status = 'cancelled';
@@ -186,7 +216,7 @@ begin
     drop constraint if exists appointments_source_check;
 
   alter table public.appointments
-    add constraint appointments_source_check check (source in ('quick', 'full', 'staff'));
+    add constraint appointments_source_check check (source in ('quick', 'full', 'staff', 'api'));
 
   alter table public.appointments
     drop constraint if exists appointments_status_check;
@@ -199,6 +229,13 @@ begin
 
   alter table public.follow_ups
     add constraint follow_ups_status_check check (status in ('pending', 'contacted', 'booked', 'no_answer', 'skipped'));
+
+  alter table public.api_clients
+    alter column name set not null,
+    alter column api_key_hash set not null,
+    alter column is_active set not null,
+    alter column created_at set not null,
+    alter column updated_at set not null;
 end;
 $$;
 
@@ -207,6 +244,18 @@ create index if not exists appointments_schedule_idx
 
 create index if not exists appointments_status_idx
   on public.appointments (status);
+
+create index if not exists appointments_api_client_idx
+  on public.appointments (api_client_id);
+
+create unique index if not exists appointments_api_external_key
+  on public.appointments (api_client_id, external_source, external_id)
+  where api_client_id is not null
+    and external_source is not null
+    and external_id is not null;
+
+create unique index if not exists api_clients_api_key_hash_key
+  on public.api_clients (api_key_hash);
 
 create unique index if not exists customers_normalized_phone_key
   on public.customers (normalized_phone);
@@ -245,6 +294,13 @@ begin
   alter table public.appointments
     add constraint appointments_pet_id_fkey
     foreign key (pet_id) references public.pets(id) on delete set null;
+
+  alter table public.appointments
+    drop constraint if exists appointments_api_client_id_fkey;
+
+  alter table public.appointments
+    add constraint appointments_api_client_id_fkey
+    foreign key (api_client_id) references public.api_clients(id) on delete set null;
 end;
 $$;
 
@@ -387,12 +443,31 @@ before update on public.follow_ups
 for each row
 execute function public.set_follow_ups_updated_at();
 
+create or replace function public.set_api_clients_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists set_api_clients_updated_at on public.api_clients;
+
+create trigger set_api_clients_updated_at
+before update on public.api_clients
+for each row
+execute function public.set_api_clients_updated_at();
+
 alter table public.appointments enable row level security;
 alter table public.customers enable row level security;
 alter table public.pets enable row level security;
 alter table public.follow_ups enable row level security;
+alter table public.api_clients enable row level security;
 
 revoke all on table public.appointments from anon, authenticated;
 revoke all on table public.customers from anon, authenticated;
 revoke all on table public.pets from anon, authenticated;
 revoke all on table public.follow_ups from anon, authenticated;
+revoke all on table public.api_clients from anon, authenticated;

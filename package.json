@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "appointments:schema": "node scripts/apply-appointments-schema.mjs",
     "staff:schema": "node scripts/apply-staff-schema.mjs",
-    "staff:create": "node scripts/create-staff-user.mjs"
+    "staff:create": "node scripts/create-staff-user.mjs",
+    "api-client:create": "node scripts/create-api-client.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
